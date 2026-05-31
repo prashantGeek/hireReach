@@ -21,3 +21,13 @@ pnpm-debug.log*
 
 # misc
 .DS_Store
+
+# databases
+*.db
+*.db-journal
+
+# generated prisma configs
+prisma.config.js
+prisma.config.js.map
+prisma.config.d.ts
+prisma.config.d.ts.map

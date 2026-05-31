@@ -9,24 +9,21 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum UserRole {
-  USER
-  ADMIN
+  provider = "sqlite"
 }
 
 model User {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  passwordHash String
-  fullName     String
-  role         UserRole       @default(USER)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  refreshTokens RefreshToken[]
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  fullName       String
+  role           String          @default("USER")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  refreshTokens  RefreshToken[]
+  profile        Profile?
+  jobPosts       JobPost[]
+  outreachEmails OutreachEmail[]
 
   @@map("users")
 }
@@ -41,4 +38,68 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedinUrl     String?
+  githubUrl       String?
+  portfolioUrl    String?
+  title           String?
+  yearsExperience Int?
+  summary         String?
+  skillsJson      Json?    // Array of skills
+  projectsJson    Json?    // Array of project highlight objects
+  location        String?
+  phone           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model JobPost {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceUrl     String?
+  rawText       String
+  extractedJson Json            // Extracted job post details
+  createdAt     DateTime        @default(now())
+  emails        OutreachEmail[]
+
+  @@index([userId])
+  @@map("job_posts")
+}
+
+model OutreachEmail {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobPostId         String
+  jobPost           JobPost   @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  recipientEmail    String
+  subject           String
+  htmlContent       String
+  status            String    // 'draft', 'sent', 'failed'
+  providerMessageId String?
+  createdAt         DateTime  @default(now())
+  sentAt            DateTime?
+
+  @@index([userId])
+  @@index([jobPostId])
+  @@map("outreach_emails")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  details   String
+  status    String   // 'SUCCESS', 'FAILURE', 'INFO'
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
 }
