@@ -74,3 +74,31 @@ jobPostRouter.get("/job-post", requireAuth, async (req, res) => {
     res.status(500).json({ message: "Failed to load job posts" });
   }
 });
+
+// Get a single job post details
+jobPostRouter.get("/job-post/:id", requireAuth, async (req, res) => {
+  const userId = req.user?.id;
+  const { id } = req.params;
+
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const jobPost = await prisma.jobPost.findFirst({
+      where: { id: id as string, userId },
+    });
+
+    if (!jobPost) {
+      res.status(404).json({ message: "Job post not found" });
+      return;
+    }
+
+    res.status(200).json({ jobPost });
+  } catch (error) {
+    console.error("Error retrieving job post:", error);
+    res.status(500).json({ message: "Failed to retrieve job post details" });
+  }
+});
+

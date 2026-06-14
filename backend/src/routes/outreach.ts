@@ -235,3 +235,34 @@ outreachRouter.get("/outreach/history", requireAuth, async (req, res) => {
     res.status(500).json({ message: "Failed to load outreach history" });
   }
 });
+
+// 4. Get a single outreach email details
+outreachRouter.get("/outreach/:id", requireAuth, async (req, res) => {
+  const userId = req.user?.id;
+  const { id } = req.params;
+
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const outreach = await prisma.outreachEmail.findFirst({
+      where: { id: id as string, userId },
+      include: {
+        jobPost: true,
+      },
+    });
+
+    if (!outreach) {
+      res.status(404).json({ message: "Outreach email draft not found" });
+      return;
+    }
+
+    res.status(200).json({ outreach });
+  } catch (error) {
+    console.error("Error retrieving outreach email details:", error);
+    res.status(500).json({ message: "Failed to load outreach email details" });
+  }
+});
+

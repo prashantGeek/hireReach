@@ -27,3 +27,22 @@ app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", jobPostRouter);
 app.use("/api", outreachRouter);
+
+// Global error-handling middleware
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    next: express.NextFunction,
+  ) => {
+    console.error("Unhandled API Error:", err);
+    const statusCode = err.status || err.statusCode || 500;
+    res.status(statusCode).json({
+      message: err.message || "An unexpected server error occurred.",
+      ...(env.NODE_ENV === "development" ? { error: err.stack || err } : {}),
+    });
+  },
+);
+
