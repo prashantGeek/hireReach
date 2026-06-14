@@ -17,7 +17,7 @@ export default function ProfilePage() {
 
   // Form states
   const [title, setTitle] = useState("");
-  const [yearsExperience, setYearsExperience] = useState<number>(0);
+  const [yearsExperience, setYearsExperience] = useState<string>("0");
   const [location, setLocation] = useState("");
   const [phone, setPhone] = useState("");
   const [summary, setSummary] = useState("");
@@ -40,7 +40,7 @@ export default function ProfilePage() {
       if (response.data?.profile) {
         const p = response.data.profile;
         setTitle(p.title || "");
-        setYearsExperience(p.yearsExperience ?? 0);
+        setYearsExperience(String(p.yearsExperience ?? 0));
         setLocation(p.location || "");
         setPhone(p.phone || "");
         setSummary(p.summary || "");
@@ -90,7 +90,7 @@ export default function ProfilePage() {
     try {
       const payload = {
         title: title.trim(),
-        yearsExperience: Number(yearsExperience),
+        yearsExperience: yearsExperience === "" ? 0 : Number(yearsExperience),
         location: location.trim(),
         phone: phone.trim() || null,
         summary: summary.trim(),
@@ -234,7 +234,14 @@ export default function ProfilePage() {
                 min={0}
                 required
                 value={yearsExperience}
-                onChange={(e) => setYearsExperience(Number(e.target.value))}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val.startsWith("0") && val.length > 1) {
+                    setYearsExperience(val.slice(1));
+                  } else {
+                    setYearsExperience(val);
+                  }
+                }}
                 className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 placeholder="5"
               />
