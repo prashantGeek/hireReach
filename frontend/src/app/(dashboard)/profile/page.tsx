@@ -64,6 +64,18 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
+  const scrollToTop = () => {
+    const mainEl = document.querySelector("main");
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    const titleEl = document.getElementById("profile-title");
+    if (titleEl) {
+      titleEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // Save profile
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,16 +86,19 @@ export default function ProfilePage() {
     if (!title.trim()) {
       setMessage({ type: "error", text: "Professional Title is required." });
       setIsSaving(false);
+      scrollToTop();
       return;
     }
     if (!location.trim()) {
       setMessage({ type: "error", text: "Location is required." });
       setIsSaving(false);
+      scrollToTop();
       return;
     }
     if (summary.trim().length < 10) {
       setMessage({ type: "error", text: "Professional summary must be at least 10 characters." });
       setIsSaving(false);
+      scrollToTop();
       return;
     }
 
@@ -108,6 +123,7 @@ export default function ProfilePage() {
       const response = await api.post("/profile", payload);
       if (response.data?.profile) {
         setMessage({ type: "success", text: "Professional profile saved successfully!" });
+        scrollToTop();
       }
     } catch (error: any) {
       console.error("Error saving profile:", error);
@@ -115,6 +131,7 @@ export default function ProfilePage() {
         type: "error",
         text: error.response?.data?.message || "Failed to update professional profile.",
       });
+      scrollToTop();
     } finally {
       setIsSaving(false);
     }
@@ -185,7 +202,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight">Professional Profile</h1>
+        <h1 id="profile-title" className="text-3xl font-extrabold tracking-tight">Professional Profile</h1>
         <p className="text-muted-foreground mt-1 text-sm md:text-base">
           Define your qualifications, skills, and projects. The AI reads this profile to compose matches and letters.
         </p>
