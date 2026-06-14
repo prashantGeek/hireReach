@@ -7,7 +7,7 @@ let openaiInstance: OpenAI | null = null;
 function getOpenAIClient(): OpenAI {
   if (!openaiInstance) {
     openaiInstance = new OpenAI({
-      apiKey: env.OPENAI_API_KEY === "placeholder_key_replace_me" ? "" : env.OPENAI_API_KEY,
+      apiKey: env.OPENAI_API_KEY === "placeholder_key_replace_me" ? "dummy_openai_key_for_testing" : env.OPENAI_API_KEY,
     });
   }
   return openaiInstance;
